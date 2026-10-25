@@ -1,13 +1,15 @@
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
-const connectToMongoDB = require("./Config/DatabaseConfig").connectToMongoDB;
 const dns = require("node:dns");
+const connectToMongoDB = require("./Config/DatabaseConfig").connectToMongoDB;
+const UserRoute = require('./Routes/User.route') 
+
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 dotenv.config();
 
 app.use(express.json());
-
+app.use('/users', UserRoute)
 
 app.listen(process.env.PORT, () => {
   connectToMongoDB();
