@@ -23,6 +23,18 @@ const userSchema = new mongoose.Schema({
         unique: true,   
         trim: true,
     },
+    bio:{
+        type: String,
+        trim: true,
+    },
+    profilePicture: {
+        type: String,
+        trim: true,
+    },
+    location: {
+        type: String,
+        trim: true,
+    },
     password: {
         type: String,
         required: true,
