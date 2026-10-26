@@ -87,7 +87,9 @@ exports.userLogin = async (req,res)=>{
             token
         })
     }catch(error){
-
+        res.status(500).json({
+            message: error.message
+        })
     }
 }
 
@@ -157,3 +159,38 @@ exports.updateProfilePicture = async (req, res) => {
     });
   }
 };
+
+exports.updateUser = async (req,res)=>{
+    try{
+        const {firstName,lastName,bio,location} = req.body
+
+        if(!firstName || !lastName || !bio || !location){
+            return res.status(400).json({
+                message:"All fields are required"
+            })
+        }
+
+        const user = await User.findById(req.user.id)
+        if(!user){
+            return res.status(404).json({
+                message:"User not found"
+            })
+        }
+
+        user.firstName = firstName
+        user.lastName = lastName
+        user.bio = bio
+        user.location = location
+
+        await user.save()
+
+        res.status(201).json({
+            message:"User profile succesfully update",
+            user
+        })
+    }catch(error){
+        res.status(500).json({
+            message:error.message
+        })
+    }
+}
