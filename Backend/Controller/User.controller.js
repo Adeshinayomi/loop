@@ -1,6 +1,7 @@
 const User = require('../Models/User');
 const bcrypt = require('bcryptjs');
-
+const jwt = require('jsonwebtoken')
+const {uploadProfilePicture,deleteProfilePicture} = require('../Services/Cloudinary.service')
 
 exports.createUser = async (req, res) => {
     try {
@@ -42,7 +43,51 @@ exports.createUser = async (req, res) => {
         res.status(201).json(newUser);
 
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
+
+exports.userLogin = async (req,res)=>{
+    try{
+        const {email, password} = req.body
+
+        if(!email || !password){
+            return res.status(400).json({
+                message:"All fields a required"
+            })
+        }
+
+        const user = await User.findOne({email})
+        if(!user){
+            return res.status(400).json({
+                message:"Invalid credentials"
+            })
+        }
+
+        const isPasswordAMatch=await bcrypt.compare(password,user.password)
+        if(!isPasswordAMatch){
+            return res.status(400).json({
+                message:"Invalid credentials"
+            })
+        }
+
+        const token=jwt.sign({
+            id:user._id, 
+            email:user.email,
+        }, 
+        process.env.JWT_SECRET, 
+        {
+            expiresIn: process.env.JWT_EXPIRES_IN
+
+        })
+
+        res.status(200).json({
+            message:'Login successful',
+            user,
+            token
+        })
+    }catch(error){
+
+    }
+}
 
