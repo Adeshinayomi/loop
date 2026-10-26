@@ -194,3 +194,58 @@ exports.updateUser = async (req,res)=>{
         })
     }
 }
+
+exports.changePassword = async (req,res)=>{
+    try{
+        const {currentPassword,newPassword} = req.body
+        
+        if(!newPassword || !currentPassword){
+            return res.status(400).json({
+                message:"All fields are required"
+            })
+        }
+
+        if(newPassword.length < 6){
+            return res.status(400).json({
+                message:"Password must be greater 6 characters"
+            })
+        }
+
+        const user = await User.findById(req.user.id)
+        
+        if(!user){
+            return res.status(404).json({
+                message:"User not found!"
+            })
+        }
+
+
+        const isPasswordAMatch = await bcrypt.compare(currentPassword,user.password)
+        if(!isPasswordAMatch){
+            return res.status(400).json({
+                message:"Incorrect Password"
+            })
+        }
+
+        const arePasswordsTheSame = await bcrypt.compare(newPassword,user.password)
+        if(arePasswordsTheSame){
+            return res.status(400).json({
+                message:"New password can not be same as previous password"
+            })
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword,10)
+
+        user.password = hashedPassword
+
+        await user.save()
+
+        res.status(200).json({
+            message:"password updated successfully"
+        })
+    }catch(error){
+        res.status(500).json({
+            message:error.message
+        })
+    }
+}
