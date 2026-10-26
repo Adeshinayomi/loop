@@ -7,5 +7,6 @@ const UserController = require('../Controller/User.controller')
 route.post('/create', UserController.createUser)
 route.post('/login', UserController.userLogin)
 route.put('/updateprofilepic', protect, upload.single("profilePicture"), UserController.updateProfilePicture)
-
+route.put('/update', protect, UserController.updateUser)
+    
 module.exports = route
