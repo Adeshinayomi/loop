@@ -91,3 +91,69 @@ exports.userLogin = async (req,res)=>{
     }
 }
 
+exports.updateProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Please select a profile picture.",
+      });
+    }
+
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+      });
+    }
+
+    const uploadedImage = await uploadProfilePicture(
+      req.file.buffer
+    );
+
+    const oldPublicId = user.profilePicture;
+
+    user.profilePicture = uploadedImage.url
+    
+    await user.save();
+
+    if (oldPublicId) {
+      try {
+        await deleteProfilePicture(oldPublicId);
+      } catch (error) {
+        console.error(
+          "Failed to delete previous profile picture:",
+          error
+        );
+      }
+    }
+
+    return res.status(200).json({
+      message: "Profile picture updated successfully.",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        profilePicture: user.profilePicture,
+      },
+    });
+  } catch (error) {
+    if (uploadedImage?.publicId) {
+      try {
+        await deleteProfilePicture(uploadedImage.publicId);
+      } catch (cleanupError) {
+        console.error(
+          "Failed to clean up uploaded image:",
+          cleanupError
+        );
+      }
+    }
+
+    console.error("Profile picture update failed:", error);
+
+    return res.status(500).json({
+      message: "Failed to update profile picture.",
+    });
+  }
+};
