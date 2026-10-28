@@ -5,13 +5,14 @@ const dns = require("node:dns");
 const connectToMongoDB = require("./Config/DatabaseConfig").connectToMongoDB;
 const UserRoute = require('./Routes/User.route') 
 const postRoute = require('./Routes/Post.route')
-
+const commentRoute = require('./Routes/Comment.route')
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 dotenv.config();
 
 app.use(express.json());
 app.use('/users', UserRoute)
 app.use('/posts',postRoute)
+app.use('/comment',commentRoute)
 
 app.listen(process.env.PORT, () => {
   connectToMongoDB();
