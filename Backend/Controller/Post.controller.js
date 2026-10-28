@@ -53,3 +53,68 @@ exports.getAllPost = async (req,res)=>{
         })
     }
 }
+
+exports.getPostById = async (req,res)=>{
+    try{
+        const postId = req.params.id
+
+        const post = await Post.findById(postId)
+
+        if(!post){
+            return res.status(404).json({
+                message:"Post not found!"
+            })
+        }
+
+        res.status(200).json({
+            post
+        })
+    }catch(error){
+        res.status(500).json({
+            message:error.message
+        })
+    }
+}
+
+exports.getUserPost = async (req,res)=>{
+    try{
+        const posts = await Post.find({author:req.user.id}).sort({createdAt:-1})
+
+        if(!posts){
+            return res.status(404).json({
+                message:"Nothing to see here!"
+            })
+        }
+
+        res.status(200).json({
+            posts
+        })
+    }catch(error){
+        res.status(500).json({
+            message:error.message
+        })
+    }
+}
+
+exports.deletePost = async (req,res)=>{
+    try{
+        const postId = req.params.id
+
+        const post = await Post.findById(postId)
+        if(!post){
+            return res.status(404).json({
+                message:"Post not found"
+            })
+        }
+
+        await Post.findByIdAndDelete(postId)
+        
+        res.status(200).json({
+            message:"Post deleted successfully"
+        })
+    }catch(error){
+        res.status(500).json({
+            message:error.message
+        })
+    }
+}
