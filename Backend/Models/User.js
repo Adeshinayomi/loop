@@ -40,6 +40,15 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6,
     },
+    followersCount: {
+        type: Number,
+        default: 0,
+    },
+
+    followingCount: {
+        type: Number,
+        default: 0,
+    }
 });
 
 module.exports = mongoose.model("User", userSchema);
