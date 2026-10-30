@@ -97,8 +97,8 @@ exports.unfollowUser = async (req, res) => {
       });
     }
 
-    user.followingCount += 1
-    userToUnFollow.followersCount += 1
+    user.followingCount -= 1
+    userToUnFollow.followersCount -= 1
 
     await user.save()
     await userToUnFollow.save()

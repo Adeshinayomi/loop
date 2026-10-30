@@ -16,7 +16,7 @@ app.use('/users', UserRoute)
 app.use('/posts',postRoute)
 app.use('/comment',commentRoute)
 app.use('/like', LikeRoute)
-app.use('/follow', followRoute)
+app.use('/', followRoute)
 app.listen(process.env.PORT, () => {
   connectToMongoDB();
   console.log(`Server is running on port ${process.env.PORT}`);
