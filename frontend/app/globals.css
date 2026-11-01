@@ -37,11 +37,11 @@
   --color-accent-dark: var(--accent-dark);
   --color-secondary: var(--secondary);
   --color-input: var(--input);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
