@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const dotenv = require("dotenv");
 const dns = require("node:dns");
@@ -11,6 +12,7 @@ const followRoute = require("./Routes/Follow.route")
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 dotenv.config();
 
+app.use(cors());
 app.use(express.json());
 app.use('/users', UserRoute)
 app.use('/posts',postRoute)
