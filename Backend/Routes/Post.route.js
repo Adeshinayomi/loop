@@ -8,6 +8,7 @@ route.post('/createpost', upload.array("images", 5), protect , postController.cr
 route.get('/getall', protect, postController.getAllPost)
 route.get('/getpost/:id', protect, postController.getPostById)
 route.get('/getposts', protect, postController.getUserPost)
+route.get('/user/:userId', protect, postController.getPostsByUserId)
 route.delete('/delete/:id', protect, postController.deletePost)
 
 module.exports = route
