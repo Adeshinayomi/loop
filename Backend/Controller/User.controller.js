@@ -249,3 +249,61 @@ exports.changePassword = async (req,res)=>{
         })
     }
 }
+exports.searchUsers = async (req, res) => {
+  try {
+    const query = (req.query.q || "").trim();
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 30);
+    const skip = (page - 1) * limit;
+
+    const filter = { _id: { $ne: req.user.id } };
+    if (query) {
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const matcher = new RegExp(escaped, "i");
+      filter.$or = [
+        { firstName: matcher },
+        { lastName: matcher },
+        { username: matcher },
+      ];
+    }
+
+    const [users, following] = await Promise.all([
+      User.find(filter)
+        .select("firstName lastName username bio profilePicture location followersCount followingCount")
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      require("../Models/Follow").find({ follower: req.user.id }).select("following").lean(),
+    ]);
+
+    const followingIds = new Set(following.map((item) => String(item.following)));
+    const results = users.map((user) => ({
+      ...user,
+      isFollowing: followingIds.has(String(user._id)),
+    }));
+
+    return res.status(200).json({ users: results, page, limit });
+  } catch (error) {
+    return res.status(500).json({ message: "Could not search users.", error: error.message });
+  }
+};
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId)
+      .select("firstName lastName username bio profilePicture location followersCount followingCount")
+      .lean();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const isFollowing = req.user.id === String(user._id)
+      ? false
+      : Boolean(await require("../Models/Follow").exists({ follower: req.user.id, following: user._id }));
+
+    return res.status(200).json({ user: { ...user, isFollowing } });
+  } catch (error) {
+    return res.status(500).json({ message: "Could not fetch user profile.", error: error.message });
+  }
+};
