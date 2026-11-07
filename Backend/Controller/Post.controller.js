@@ -42,7 +42,9 @@ exports.createPost = async (req, res) => {
 
 exports.getAllPost = async (req,res)=>{
     try{
-        const posts = await Post.find().sort({createdAt:-1})
+        const posts = await Post.find()
+        .populate("author", "username fullName profilePicture")
+        .sort({ createdAt: -1 });
         
         res.status(200).json({
             posts
@@ -90,6 +92,7 @@ exports.getUserPost = async (req,res)=>{
             posts
         })
     }catch(error){
+        console.log(error.message)
         res.status(500).json({
             message:error.message
         })
@@ -118,3 +121,21 @@ exports.deletePost = async (req,res)=>{
         })
     }
 }
+
+exports.getPostsByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const posts = await Post.find({ author: userId })
+      .populate("author", "firstName lastName username profilePicture")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({ posts });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: "Could not fetch user posts.",
+      error: error.message,
+    });
+  }
+};
