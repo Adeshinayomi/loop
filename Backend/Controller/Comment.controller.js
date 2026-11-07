@@ -79,7 +79,9 @@ exports.getCommentOnPost = async (req,res) =>{
             })
         }
 
-        const comments = await Comment.find({post}).sort({createdAt:-1})
+        const comments = await Comment.find({post})
+        .populate("author", "username fullName profilePicture")
+        .sort({createdAt:-1})
 
         res.status(200).json({
             message:"comments retrieve successfully",

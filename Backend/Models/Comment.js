@@ -31,7 +31,7 @@ const commentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+commentSchema.index({ post: 1, author: 1 }, { unique: true });
 commentSchema.index({ post: 1, createdAt: -1 });
-
 const Comment = mongoose.model("Comment", commentSchema);
 module.exports = Comment
