@@ -1,4 +1,4 @@
-const Comment = require('../Models/comment')
+const Comment = require('../Models/Comment')
 const Post  = require('../Models/Post')
 exports.createComment = async (req,res)=>{
     try{
