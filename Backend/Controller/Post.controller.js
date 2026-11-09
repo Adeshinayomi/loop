@@ -80,7 +80,9 @@ exports.getPostById = async (req,res)=>{
 
 exports.getUserPost = async (req,res)=>{
     try{
-        const posts = await Post.find({author:req.user.id}).sort({createdAt:-1})
+        const posts = await Post.find({author:req.user.id})
+        .populate("author", "username fullName profilePicture")
+        .sort({ createdAt: -1 });
 
         if(!posts){
             return res.status(404).json({
