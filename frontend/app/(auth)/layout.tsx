@@ -1,9 +1,4 @@
-import {AuthHeader} from "../components/Authheader";
-export default function authLayout({ children }: LayoutProps<"/">) {
-  return (
-      <main className="min-h-full flex flex-col gap-5">
-        <AuthHeader />
-        {children}
-      </main>
-  );
+import { AuthLayout } from "@/components/AuthLayout";
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <AuthLayout>{children}</AuthLayout>;
 }
