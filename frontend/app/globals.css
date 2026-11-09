@@ -1,5 +1,6 @@
 @import "tailwindcss";
 :root {
+  color-scheme: light;
   --bg: #f7f6f2;
   --surface: #fff;
   --text: #242329;
@@ -8,6 +9,16 @@
   --purple: #7547ec;
   --purple-soft: #f0eaff;
   --font-sans: var(--font-inter);
+}
+.dark {
+  color-scheme: dark;
+  --bg: #121116;
+  --surface: #1c1a22;
+  --text: #f4f1f8;
+  --muted: #aaa4b3;
+  --line: #34303d;
+  --purple: #a88aff;
+  --purple-soft: #302544;
 }
 * {
   box-sizing: border-box;
@@ -1106,5 +1117,217 @@ button {
   }
   .profile-cover {
     height: 120px;
+  }
+}
+
+/* Discoverable people and public profiles */
+.person-avatar-image {
+  object-fit: cover;
+  display: block;
+}
+.person-avatar-link {
+  display: inline-flex;
+  flex: none;
+}
+.person-name-link:hover {
+  color: var(--purple);
+}
+.person-bio {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 260px;
+  margin-top: 4px;
+  color: var(--muted);
+}
+.people-state {
+  padding: 12px 2px;
+}
+.people-list-compact .person-row {
+  padding: 7px 0;
+}
+.people-list-compact .avatar {
+  width: 32px;
+  height: 32px;
+}
+.people-list-compact .person-info b {
+  font-size: 10px;
+}
+.people-list-compact .person-info small {
+  font-size: 9px;
+}
+.people-list-compact .button {
+  padding: 6px 10px;
+  font-size: 10px;
+}
+.profile-avatar-image {
+  object-fit: cover;
+  display: block;
+}
+
+/* Interactive Explore page */
+.explore-people {
+  margin: 0 0 22px;
+}
+.explore-people > .between {
+  margin-bottom: 12px;
+}
+.explore-people > .between > div p {
+  margin: 5px 0 0;
+}
+.explore-search {
+  margin: 12px 0 4px;
+}
+.explore-search input {
+  background: transparent;
+}
+.explore-feed-heading {
+  margin-top: 24px;
+}
+.explore-feed-heading p {
+  margin: 5px 0 0;
+}
+.explore-refresh {
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+}
+.explore-refresh:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.explore-tabs {
+  margin: 12px 0 16px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+.chip-active {
+  background: var(--purple-soft);
+  border-color: #e2d7ff;
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.post-avatar-link {
+  overflow: hidden;
+}
+.post-avatar-link img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.post-author a:hover {
+  color: var(--purple);
+}
+
+/* Theme-aware controls and surfaces */
+.dark .topbar {
+  background: rgba(28, 26, 34, 0.88);
+}
+.dark .outline,
+.dark .settings-tabs button,
+.dark .quick-compose,
+.dark .quick-compose > a:first-of-type,
+.dark .empty-state,
+.dark .loading,
+.dark .search-box,
+.dark .chip,
+.dark .conversation,
+.dark .comment-form input,
+.dark .search-box input,
+.dark .auth-form input:not([type="checkbox"]),
+.dark .edit-form input,
+.dark .edit-form textarea {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--line);
+}
+.dark .top-search,
+.dark .quick-compose > a:first-of-type,
+.dark .comment-form input,
+.dark .search-box input {
+  background: #292631;
+  color: var(--muted);
+}
+.dark .settings-tabs button.selected,
+.dark .conversation.selected {
+  background: var(--purple-soft);
+  color: var(--purple);
+}
+.dark .notice {
+  background: #302544;
+  color: #d8c9ff;
+}
+.dark .prompt-card {
+  background: #282039;
+  border-color: #3b3055;
+}
+.dark .upload-box {
+  border-color: #51416f;
+}
+.dark .mobile-nav {
+  background: var(--surface);
+  border-color: var(--line);
+}
+.dark .nav-link {
+  color: #b4aebc;
+}
+.dark .nav-link:hover,
+.dark .nav-link.active {
+  background: var(--purple-soft);
+  color: var(--purple);
+}
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+.theme-option {
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 9px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+}
+.theme-option.active {
+  border-color: var(--purple);
+  background: var(--purple-soft);
+  color: var(--purple);
+}
+.theme-option span {
+  font-size: 12px;
+  font-weight: 650;
+}
+.theme-option .theme-check {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+}
+@media (max-width: 520px) {
+  .theme-options {
+    grid-template-columns: 1fr;
+  }
+  .theme-option {
+    min-height: 66px;
+    flex-direction: row;
+    align-items: center;
+  }
+  .theme-option .theme-check {
+    margin-left: auto;
   }
 }

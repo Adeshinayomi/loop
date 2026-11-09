@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import {
   Search,
@@ -18,6 +19,9 @@ import {
   Clock3,
   TrendingUp,
   RefreshCw,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "./AuthProvider";
@@ -476,10 +480,13 @@ export function Notifications() {
 }
 export function Settings() {
   const { user, token, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [tab, setTab] = useState("Account");
   const [msg, setMsg] = useState("");
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
+  useEffect(() => setMounted(true), []);
   async function change(e: React.FormEvent) {
     e.preventDefault();
     try {
@@ -495,6 +502,11 @@ export function Settings() {
       setMsg(e instanceof Error ? e.message : "Could not change password.");
     }
   }
+  const themeOptions = [
+    { value: "light", label: "Light", Icon: Sun },
+    { value: "dark", label: "Dark", Icon: Moon },
+    { value: "system", label: "System", Icon: Monitor },
+  ];
   return (
     <>
       <Heading
@@ -504,15 +516,17 @@ export function Settings() {
       />
       <div className="settings-layout">
         <div className="surface-card settings-tabs">
-          {["Account", "Privacy & safety", "Notifications"].map((t) => (
-            <button
-              onClick={() => setTab(t)}
-              className={tab === t ? "selected" : ""}
-              key={t}
-            >
-              {t}
-            </button>
-          ))}
+          {["Account", "Appearance", "Privacy & safety", "Notifications"].map(
+            (t) => (
+              <button
+                onClick={() => setTab(t)}
+                className={tab === t ? "selected" : ""}
+                key={t}
+              >
+                {t}
+              </button>
+            ),
+          )}
         </div>
         <div className="surface-card settings-main">
           <h2>{tab}</h2>
@@ -552,6 +566,33 @@ export function Settings() {
                 </label>
                 <button className="button primary">Update password</button>
               </form>
+            </>
+          ) : tab === "Appearance" ? (
+            <>
+              <p className="muted small">
+                Choose how Loop looks. Your preference is saved on this device.
+              </p>
+              <div
+                className="theme-options"
+                role="group"
+                aria-label="Choose appearance"
+              >
+                {themeOptions.map(({ value, label, Icon }) => (
+                  <button
+                    type="button"
+                    key={value}
+                    onClick={() => setTheme(value)}
+                    className={`theme-option ${mounted && theme === value ? "active" : ""}`}
+                    aria-pressed={mounted && theme === value}
+                  >
+                    <Icon size={19} />
+                    <span>{label}</span>
+                    {mounted && theme === value ? (
+                      <span className="theme-check">Selected</span>
+                    ) : null}
+                  </button>
+                ))}
+              </div>
             </>
           ) : (
             <div className="setting-line">

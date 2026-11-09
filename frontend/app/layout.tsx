@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
-
 import { Providers } from "@/components/Providers";
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -17,7 +16,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geistMono.variable} ${inter.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistMono.variable} ${inter.variable}`}
+    >
       <body>
         <Providers>{children}</Providers>
       </body>
