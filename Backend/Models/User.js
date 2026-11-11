@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
+    profilePicturePublicId: {
+        type: String,
+        trim: true,
+    },
     location: {
         type: String,
         trim: true,

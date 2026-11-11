@@ -94,40 +94,30 @@ exports.userLogin = async (req,res)=>{
 }
 
 exports.updateProfilePicture = async (req, res) => {
+  let uploadedImage;
   try {
     if (!req.file) {
-      return res.status(400).json({
-        message: "Please select a profile picture.",
-      });
+      return res.status(400).json({ message: "Please select a profile picture." });
     }
-
 
     const user = await User.findById(req.user.id);
-
     if (!user) {
-      return res.status(404).json({
-        message: "User not found.",
-      });
+      return res.status(404).json({ message: "User not found." });
     }
 
-    const uploadedImage = await uploadProfilePicture(
-      req.file.buffer
-    );
+    uploadedImage = await uploadProfilePicture(req.file.buffer);
+    const oldPublicId = user.profilePicturePublicId;
 
-    const oldPublicId = user.profilePicture;
-
-    user.profilePicture = uploadedImage.url
-    
+    user.profilePicture = uploadedImage.url;
+    user.profilePicturePublicId = uploadedImage.publicId;
     await user.save();
 
+    // Delete the previous Cloudinary asset only after the new image is saved.
     if (oldPublicId) {
       try {
         await deleteProfilePicture(oldPublicId);
-      } catch (error) {
-        console.error(
-          "Failed to delete previous profile picture:",
-          error
-        );
+      } catch (deleteError) {
+        console.error("Failed to delete previous profile picture:", deleteError);
       }
     }
 
@@ -135,9 +125,12 @@ exports.updateProfilePicture = async (req, res) => {
       message: "Profile picture updated successfully.",
       user: {
         id: user._id,
-        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
         email: user.email,
         profilePicture: user.profilePicture,
+        profilePicturePublicId: user.profilePicturePublicId,
       },
     });
   } catch (error) {
@@ -145,18 +138,11 @@ exports.updateProfilePicture = async (req, res) => {
       try {
         await deleteProfilePicture(uploadedImage.publicId);
       } catch (cleanupError) {
-        console.error(
-          "Failed to clean up uploaded image:",
-          cleanupError
-        );
+        console.error("Failed to clean up uploaded image:", cleanupError);
       }
     }
-
     console.error("Profile picture update failed:", error);
-
-    return res.status(500).json({
-      message: "Failed to update profile picture.",
-    });
+    return res.status(500).json({ message: "Failed to update profile picture." });
   }
 };
 
