@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import {
@@ -27,7 +27,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "./AuthProvider";
 import { PostCard } from "./PostCard";
 import { PeopleList } from "./PeopleList";
-import type { Post } from "@/lib/types";
+import type { Post, User } from "@/lib/types";
 export function CreatePost() {
   const { token } = useAuth();
   const [content, setContent] = useState("");
@@ -274,18 +274,73 @@ export function SearchPage() {
   );
 }
 export function Profile() {
-  const { user, token } = useAuth();
+  const { user, token, refresh } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [bio, setBio] = useState(user?.bio || "");
   const [location, setLocation] = useState(user?.location || "");
   const [editing, setEditing] = useState(false);
   const [msg, setMsg] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [pictureMsg, setPictureMsg] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (token)
-      api<any>("/posts/getposts", { token })
+      api<{ posts: Post[] }>("/posts/getposts", { token })
         .then((d) => setPosts(d.posts || []))
         .catch(() => {});
   }, [token]);
+  useEffect(() => {
+    setBio(user?.bio || "");
+    setLocation(user?.location || "");
+  }, [user?.bio, user?.location]);
+  async function uploadProfilePicture(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPictureMsg("");
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setPictureMsg("Choose a JPG, PNG, or WebP image.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setPictureMsg("Your image must be 5 MB or smaller.");
+      e.target.value = "";
+      return;
+    }
+    if (!token) {
+      setPictureMsg("Please sign in again before uploading.");
+      e.target.value = "";
+      return;
+    }
+    const formData = new FormData();
+    formData.append("profilePicture", file);
+    setUploading(true);
+    try {
+      const result = await api<{
+        message: string;
+        user: Partial<User> & { id?: string };
+      }>("/users/updateprofilepic", { method: "PATCH", token, body: formData });
+      const updatedUser = {
+        ...user,
+        ...result.user,
+        _id: user?._id || result.user.id,
+        profilePicture: result.user.profilePicture,
+      };
+      localStorage.setItem("loop_user", JSON.stringify(updatedUser));
+      refresh();
+      setPictureMsg(result.message || "Profile picture updated successfully.");
+    } catch (error) {
+      setPictureMsg(
+        error instanceof Error
+          ? error.message
+          : "Could not upload your profile picture.",
+      );
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
   async function save(e: React.FormEvent) {
     e.preventDefault();
     try {
@@ -299,6 +354,12 @@ export function Profile() {
           location,
         }),
       });
+      const stored = JSON.parse(localStorage.getItem("loop_user") || "{}");
+      localStorage.setItem(
+        "loop_user",
+        JSON.stringify({ ...stored, bio, location }),
+      );
+      refresh();
       setMsg("Profile updated.");
       setEditing(false);
     } catch (e) {
@@ -314,7 +375,31 @@ export function Profile() {
       />
       <div className="profile-cover" />
       <div className="profile-card">
-      {user?.profilePicture ? <img className="avatar profile-avatar profile-avatar-image" src={user.profilePicture} alt={user.firstName} /> : <div className="avatar profile-avatar">{user?.firstName?.[0]?.toUpperCase()}</div>}
+        <div className="profile-avatar-wrap">
+          <div className="avatar profile-avatar">
+            {user?.profilePicture ? (
+              <img src={user.profilePicture} alt="Your profile" />
+            ) : (
+              user?.firstName?.[0] || "L"
+            )}
+          </div>
+          <button
+            type="button"
+            className="profile-picture-button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            aria-label="Change profile picture"
+          >
+            <Camera size={15} />
+          </button>
+          <input
+            ref={fileInputRef}
+            className="visually-hidden"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={uploadProfilePicture}
+          />
+        </div>
         <div className="between profile-actions">
           <div>
             <h2>
@@ -342,6 +427,14 @@ export function Profile() {
             <b>{user?.followingCount || 0}</b> following
           </span>
         </div>
+        {uploading && (
+          <p className="muted small">Uploading profile picture...</p>
+        )}
+        {pictureMsg && (
+          <p className="notice" role="status">
+            {pictureMsg}
+          </p>
+        )}
         {editing && (
           <form onSubmit={save} className="edit-form">
             <label>

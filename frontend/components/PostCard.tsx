@@ -70,7 +70,7 @@ export function PostCard({ post }: { post: Post }) {
   return (
     <article className="post-card">
       <div className="post-head">
-              {author.profilePicture ? <img className="avatar" src={author.profilePicture} alt={author.firstName} /> : <div className="avatar profile-avatar">{author.firstName[0]?.toUpperCase()}</div>}
+              {author.profilePicture ? <img className="avatar" src={author.profilePicture} alt={author.firstName} /> : <div className="avatar">{author.firstName[0]?.toUpperCase()}</div>}
         <div className="post-author">
           <b>{authorName}</b>
           <small>

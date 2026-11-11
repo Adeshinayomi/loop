@@ -34,7 +34,7 @@ export function Feed() {
         </div>
       </div>
       <div className="quick-compose">
-              {user?.profilePicture ? <img className="avatar" src={user.profilePicture} alt={user?.firstName} /> : <div className="avatar profile-avatar">{user?.firstName?.[0]?.toUpperCase()}</div>}
+              {user?.profilePicture ? <img className="avatar" src={user.profilePicture} alt={user?.firstName} /> : <div className="avatar">{user?.firstName?.[0]?.toUpperCase()}</div>}
         <Link href="/create">What's on your mind?</Link>
         <Link href="/create" className="quick-photo">
           <ImagePlus size={17} /> Photo
